@@ -17,7 +17,13 @@ from datetime import datetime
 from decimal import Decimal
 
 
+def payload_date(payload):
+    """Дата, на которую действует курс. Берём из ответа, а не из даты запроса."""
+    return datetime.fromisoformat(payload["Date"]).date()
+
+
 def transform(payload):
+    """Превращаексм ответ API ЦБ в список словарей по одному на валюту."""
     if "Valute" not in payload:
         raise ValueError("В ответе нет ключа 'Valute': структура источника изменилась")
 
@@ -25,7 +31,7 @@ def transform(payload):
     if not valute:
         return []
 
-    rate_date = datetime.fromisoformat(payload["Date"]).date()
+    rate_date = payload_date(payload)
 
     rows = []
     for info in valute.values():
