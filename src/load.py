@@ -12,9 +12,7 @@
 import psycopg
 from psycopg.types.json import Json
 
-# на шаге 4 переедет в .env
-#если база недоступна, падаем за 5 секунд, а не висим минутами
-DSN = "postgresql://postgres:dev_local_only@localhost:5433/cbrdb?connect_timeout=5"
+from config import PG_DSN
 
 INSERT_RAW = """
     INSERT INTO raw_rates (rate_date, payload)
@@ -41,7 +39,7 @@ INSERT_LOG = """
 """
 
 
-def load(rate_date, payload, rows, dsn=DSN):
+def load(rate_date, payload, rows, dsn=PG_DSN):
     """ сырой ответ и разобранные строки в одной транзакции
 
     на выоходле количество строк, записанных в rates
@@ -55,7 +53,7 @@ def load(rate_date, payload, rows, dsn=DSN):
     return len(rows)
 
 
-def log_run(rate_date, status, rows_loaded, message, started_at, dsn=DSN):
+def log_run(rate_date, status, rows_loaded, message, started_at, dsn=PG_DSN):
     """пишем итог запуска в load_log
 
     потдельной, потому что откат неудачной загрузки не должен стирать запись о ней

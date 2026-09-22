@@ -1,8 +1,9 @@
 import requests
 from datetime import date
 
+from config import HTTP_TIMEOUT
+
 BASE_URL = "https://www.cbr-xml-daily.ru"
-TIMEOUT = 10         
 
 
 def fetch(day=None):
@@ -11,7 +12,7 @@ def fetch(day=None):
     else:
         url = f"{BASE_URL}/archive/{day.strftime("%Y/%m/%d")}/daily_json.js"
 
-    resp = requests.get(url, timeout=TIMEOUT)
+    resp = requests.get(url, timeout=HTTP_TIMEOUT)
 
     if resp.status_code == 404:
         return None

@@ -37,13 +37,10 @@ from datetime import date, datetime, timedelta, timezone
 
 import requests
 
+from config import BACKOFF_BASE, LOG_LEVEL, PAUSE_BETWEEN_DAYS, RETRIES
 from extract import fetch
 from load import load, log_run
 from transform import payload_date, transform
-
-RETRIES = 3          
-BACKOFF_BASE = 2   
-PAUSE_BETWEEN_DAYS = 0.3
 
 log = logging.getLogger("cbr")
 
@@ -137,7 +134,7 @@ def parse_args():
 
 def main():
     logging.basicConfig(
-        level=logging.INFO,
+        level=LOG_LEVEL,
         format="%(asctime)s %(levelname)s %(message)s",
     )
     args = parse_args()
