@@ -1,0 +1,35 @@
+{
+    "Date": "2026-09-19T11:30:00+03:00",
+    "Valute": {
+        "EUR": {
+            "ID": "R01239",
+            "Name": "Евро",
+            "Value": 96.6671,
+            "Nominal": 1,
+            "NumCode": "978",
+            "CharCode": "EUR",
+            "Previous": 97.4984
+        },
+        "JPY": {
+            "ID": "R01820",
+            "Name": "Иен",
+            "Value": 53.5948,
+            "Nominal": 100,
+            "NumCode": "392",
+            "CharCode": "JPY",
+            "Previous": 54.1206
+        },
+        "USD": {
+            "ID": "R01235",
+            "Name": "Доллар США",
+            "Value": 84.1975,
+            "Nominal": 1,
+            "NumCode": "840",
+            "CharCode": "USD",
+            "Previous": 84.5093
+        }
+    },
+    "Timestamp": "2026-09-21T17:00:00+03:00",
+    "PreviousURL": "//www.cbr-xml-daily.ru/archive/2026/09/18/daily_json.js",
+    "PreviousDate": "2026-09-18T11:30:00+03:00"
+}
