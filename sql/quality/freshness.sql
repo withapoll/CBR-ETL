@@ -9,4 +9,4 @@ SELECT
     MAX(rate_date)                  AS last_date,
     CURRENT_DATE - MAX(rate_date)   AS days_old
 FROM rates
-HAVING COALESCE(CURRENT_DATE - MAX(rate_date), 9999) > 4;
+HAVING COALESCE(CURRENT_DATE - MAX(rate_date), 9999) > 4; --- для теста убрал 9999 

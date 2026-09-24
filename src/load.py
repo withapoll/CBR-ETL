@@ -31,7 +31,7 @@ INSERT_RATE = """
            value = EXCLUDED.value,
            loaded_at = NOW()
 """
-
+# для теста ON CONFLICT (rate_date, char_code) DO NOTHTING
 
 INSERT_LOG = """
     INSERT INTO load_log (rate_date, status, rows_loaded, message, started_at)

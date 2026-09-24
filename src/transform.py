@@ -41,7 +41,7 @@ def transform(payload):
                 "char_code": info["CharCode"],
                 "name": info["Name"],
                 "nominal": info["Nominal"],
-                "value": Decimal(str(info["Value"])),
+                "value": Decimal(str(info["Value"])), # замена для теста  info["Value"]
             }
         )
 
