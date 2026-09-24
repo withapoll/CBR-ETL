@@ -8,7 +8,7 @@ import psycopg
 import pytest
 from dotenv import load_dotenv
 
-# явно, а не надеясь, что .env подхватит какой-нибудь импортированный модуль
+# брутфорс что .env подхватит какой-нибудь импортированный модуль
 load_dotenv()
 
 TESTS_DIR = Path(__file__).resolve().parent
@@ -27,9 +27,12 @@ def payload():
 
 @pytest.fixture(scope="session")
 def test_dsn():
-    """Тестовая база со свежей схемой — один раз на весь прогон."""
+    """Тестовая база со свежей схемой один раз на весь прогон."""
     dsn = os.getenv("TEST_PG_DSN")
     if not dsn:
+        # локально пропуск удобен, а в CI он дал бы зелёную галочку без проверки главного
+        if os.getenv("CI"):
+            pytest.fail("В CI должен быть задан TEST_PG_DSN")
         pytest.skip("TEST_PG_DSN не задан — интеграционные тесты пропущены")
 
     # тесты сносят схему целиком; до рабочей базы они не должны дотянуться ни при каких условиях
