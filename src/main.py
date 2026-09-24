@@ -40,6 +40,7 @@ import requests
 from config import BACKOFF_BASE, LOG_LEVEL, PAUSE_BETWEEN_DAYS, RETRIES
 from extract import fetch
 from load import load, log_run
+from quality import run_checks
 from transform import payload_date, transform
 
 log = logging.getLogger("cbr")
@@ -119,6 +120,37 @@ def run_backfill(days):
     return all_ok
 
 
+def report_quality():
+    """Проверки качества после загрузки
+
+    false, если сработала хоть одна проверка уровня error
+    warning и info только пишутся в лог: решение по ним принимает чел которые видит данные
+    """
+    try:
+        results = run_checks()
+    except Exception:
+        log.exception("проверки качества не выполнились")
+        return False
+
+    ok = True
+    for r in results:
+        if r["violations"] == 0:
+            continue
+        message = "DQ %s: нарушений %s, пример: %s"
+        args = (r["check_name"], r["violations"], r["sample"][:1])
+        if r["severity"] == "error":
+            log.error(message, *args)
+            ok = False
+        elif r["severity"] == "warning":
+            log.warning(message, *args)
+        else:
+            log.info(message, *args)
+
+    if ok:
+        log.info("DQ: проверок уровня error не сработало")
+    return ok
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Загрузка курсов валют ЦБ РФ")
     group = parser.add_mutually_exclusive_group()
@@ -146,7 +178,9 @@ def main():
     else:
         ok = run_one()
 
-    return 0 if ok else 1
+    # проверки илут всегда даже если загрузка упала:такк покажут в каком состоянии данные
+    dq_ok = report_quality()
+    return 0 if ok and dq_ok else 1
 
 
 if __name__ == "__main__":
