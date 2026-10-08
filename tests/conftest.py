@@ -7,6 +7,8 @@ from pathlib import Path
 import psycopg
 import pytest
 from dotenv import load_dotenv
+from psycopg import sql
+from psycopg.conninfo import conninfo_to_dict, make_conninfo
 
 # брутфорс что .env подхватит какой-нибудь импортированный модуль
 load_dotenv()
@@ -25,6 +27,22 @@ def payload():
     return json.loads(text)
 
 
+def _ensure_database(dsn, db_name):
+    """Создаёт тестовую базу, если её ещё нет.
+
+    На чистой машине её никто не создавал. Подключаемся к служебной базе postgres
+    на том же сервере: создать базу, находясь в ней самой, нельзя.
+    """
+    admin_dsn = make_conninfo(dsn, dbname="postgres")
+    with psycopg.connect(admin_dsn, autocommit=True) as conn:
+        exists = conn.execute(
+            "SELECT 1 FROM pg_database WHERE datname = %s", (db_name,)
+        ).fetchone()
+        if not exists:
+            # имя базы — идентификатор, поэтому sql.Identifier, а не %s
+            conn.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(db_name)))
+
+
 @pytest.fixture(scope="session")
 def test_dsn():
     """Тестовая база со свежей схемой один раз на весь прогон."""
@@ -35,8 +53,12 @@ def test_dsn():
             pytest.fail("В CI должен быть задан TEST_PG_DSN")
         pytest.skip("TEST_PG_DSN не задан — интеграционные тесты пропущены")
 
-    # тесты сносят схему целиком; до рабочей базы они не должны дотянуться ни при каких условиях
-    assert "test" in dsn, "TEST_PG_DSN должен указывать на тестовую базу"
+    # тесты сносят схему целиком; до рабочей базы они не должны дотянуться ни при каких условиях.
+    # Проверяем именно имя базы, а не всю строку: слово test могло оказаться в пароле или хосте
+    db_name = conninfo_to_dict(dsn)["dbname"]
+    assert "test" in db_name, "TEST_PG_DSN должен указывать на тестовую базу"
+
+    _ensure_database(dsn, db_name)
 
     with psycopg.connect(dsn, autocommit=True) as conn:
         conn.execute("DROP SCHEMA public CASCADE")
